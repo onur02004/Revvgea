@@ -998,6 +998,363 @@ function updateRoom(newSettings) {
     socket.emit('update_room_settings', newSettings);
 }
 
+
+/**
+ * Switches between Grid, Minigame, and CarPlay
+ */
+function switchShowroom(viewId, btn) {
+    // UI Updates
+    document.querySelectorAll('.s-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    document.querySelectorAll('.showroom-view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + viewId).classList.add('active');
+
+    // Logic Trigger
+    if (viewId === 'minigame') {
+        initLobbyMiniGame();
+    }
+}
+
+/**
+ * Initializes the top‑down game inside the lobby's minigame container.
+ * This is a direct port of topdowndemo.html, adapted only to fit the container.
+ */
+function initLobbyMiniGame() {
+    // Prevent double initialization
+    if (window._minigameActive) return;
+    window._minigameActive = true;
+
+    const container = document.querySelector('.minigame-container');
+    const canvas = document.getElementById('lobbyMiniGameCanvas');
+    if (!canvas || !container) return;
+
+    // ---------- CREATE GAME HUD INSIDE CONTAINER ----------
+    // Remove any leftover HUD elements from previous runs
+    const oldHUD = container.querySelectorAll('.game-hud-element');
+    oldHUD.forEach(el => el.remove());
+
+    // Inject the game's HUD (speed, nitro, score, hint)
+    const hudHTML = `
+        <div class="game-hud-element" id="hud" style="position: absolute; top: 24px; right: 28px; text-align: right; pointer-events: none; z-index: 20;">
+            <div id="speedText" style="font-size: 80px; font-weight: 900; color: #00ffe1; text-shadow: 0 0 25px #00ffe1, 0 0 50px #0066ff; line-height: 0.7; letter-spacing: 4px;">0</div>
+            <small style="font-size: 14px; color: #aaccff; letter-spacing: 6px; display: block; margin-top: -8px;">KM/H</small>
+        </div>
+        <div class="game-hud-element" id="scoreHUD" style="position: absolute; left: 50%; top: 28px; transform: translateX(-50%); font-weight: 900; font-size: 52px; color: #fff35c; text-shadow: 0 0 20px #ffd966, 0 0 40px #ffaa33; letter-spacing: 4px; background: rgba(0,0,0,0.3); padding: 8px 28px; border-radius: 80px; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,100,0.4); z-index: 15;">
+            🎯 <span id="scoreVal">0</span>
+        </div>
+        <div class="game-hud-element" id="nitroBar" style="position: absolute; bottom: 40px; left: 40px; width: 240px; height: 18px; background: rgba(20,20,40,0.7); border-radius: 40px; overflow: hidden; backdrop-filter: blur(4px); border: 1px solid #33ffff; box-shadow: 0 0 20px cyan; z-index: 30;">
+            <div id="nitroFill" style="width: 100%; height: 100%; background: linear-gradient(90deg, #88ffff, #00ffcc, #44ffff); box-shadow: 0 0 30px #00ffff; transition: width 0.1s ease;"></div>
+        </div>
+        <div class="game-hud-element" id="hint" style="position: absolute; bottom: 40px; right: 40px; color: #b0d0ff; font-size: 13px; background: rgba(8,12,30,0.6); padding: 8px 18px; border-radius: 40px; backdrop-filter: blur(3px); border: 1px solid cyan; letter-spacing: 0.5px;">
+            ⚡ SHIFT to powerslide • collect cubes
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', hudHTML);
+
+    // ---------- GAME CONSTANTS & VARIABLES (from topdowndemo) ----------
+    const ctx = canvas.getContext('2d');
+    const MAP_SIZE = 3000;
+    const MAX_PARTICLES = 400;
+    const MAX_SKIDMARKS = 250;
+
+    // Game state
+    let gameMode = 'none';          // not used (no cops/ai in lobby)
+    let score = 0;
+    let currentMap = 'downtown';
+    let mapObjects = [];
+    let streetObjects = [];
+    let particles = [];
+    let skidMarks = [];
+    let cops = [];
+    let trackPath = [];
+
+    // Camera
+    let shake = 0;
+    const zoom = 1.2;
+
+    // Player car
+    const car = {
+        x: 0, y: 0, angle: 0,
+        speed: 0, velX: 0, velY: 0,
+        width: 22, height: 46,
+        accel: 0.18,
+        maxSpeed: 6.8,
+        friction: 0.982,
+        grip: 0.18,
+        driftGrip: 0.06,
+        rotationSpeed: 0.052,
+        nitro: 100,
+        drifting: false
+    };
+
+    // AI target (not used)
+    const ai = { active: false };
+
+    // ---------- HELPER FUNCTIONS (from topdowndemo) ----------
+    function buildingCollision(v) {
+        for (let o of mapObjects) {
+            if (v.x > o.x && v.x < o.x+o.w && v.y > o.y && v.y < o.y+o.h) {
+                v.x -= v.velX * 1.2;
+                v.y -= v.velY * 1.2;
+                v.velX *= -0.4;
+                v.velY *= -0.4;
+                v.speed *= 0.5;
+                shake = 12;
+                break;
+            }
+        }
+    }
+
+    function handleCollect(v) {
+        for (let obj of streetObjects) {
+            if (!obj.destroyed && Math.hypot(v.x - obj.x, v.y - obj.y) < 35) {
+                obj.destroyed = true;
+                if (v === car) {
+                    score += obj.score;
+                    document.getElementById('scoreVal').innerText = score;
+                    shake = 6;
+                    let count = Math.min(10, MAX_PARTICLES - particles.length);
+                    for (let i = 0; i < count; i++) {
+                        particles.push({
+                            x: obj.x, y: obj.y,
+                            vx: (Math.random() - 0.5) * 10,
+                            vy: (Math.random() - 0.5) * 10,
+                            life: 1.0,
+                            color: obj.color,
+                            size: 6
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    // Simplified map generation (downtown only)
+    function generateDowntownMap() {
+        mapObjects = [];
+        streetObjects = [];
+        for (let x = -MAP_SIZE; x <= MAP_SIZE; x += 550) {
+            for (let y = -MAP_SIZE; y <= MAP_SIZE; y += 550) {
+                if (Math.hypot(x, y) < 700) continue;
+                mapObjects.push({ x: x+40, y: y+30, w: 360, h: 360, color: `hsl(${280 + (x*0.02 + y*0.01) % 30}, 70%, 15%)` });
+                if (Math.random() < 0.4) {
+                    streetObjects.push({ x: x+200+Math.random()*200, y: y+200*Math.random(), w: 18, h: 18, color: '#ffcc00', score: 70, destroyed: false });
+                }
+            }
+        }
+        for (let i=0; i<25; i++) {
+            streetObjects.push({ 
+                x: (Math.random()-0.5)*2800, y: (Math.random()-0.5)*2800,
+                w: 15, h: 15, color: '#ff66aa', score: 150, destroyed: false 
+            });
+        }
+    }
+
+    // ---------- KEY HANDLING (scoped to minigame) ----------
+    const keys = {};
+    function handleKeyDown(e) {
+        if (!document.getElementById('view-minigame').classList.contains('active')) return;
+        // Ignore if chat input is focused
+        if (document.activeElement && document.activeElement.id === 'chatInput') return;
+        keys[e.code] = true;
+        e.preventDefault(); // prevent page scrolling with arrow keys
+    }
+    function handleKeyUp(e) {
+        keys[e.code] = false;
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    // ---------- RESIZE (use container dimensions) ----------
+    function resizeCanvas() {
+        const rect = container.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Generate initial map
+    generateDowntownMap();
+    car.x = 0; car.y = 0;
+
+    // ---------- UPDATE LOOP ----------
+    let animationFrame;
+    function update() {
+        // Only run if the minigame view is active
+        if (!document.getElementById('view-minigame').classList.contains('active')) {
+            animationFrame = requestAnimationFrame(update);
+            return;
+        }
+
+        // Nitro
+        let nitroBoost = 0;
+        if (keys['Space'] && car.nitro > 0) {
+            car.nitro -= 1.2;
+            nitroBoost = car.accel * 3.2;
+            shake = 3;
+        } else {
+            car.nitro = Math.min(car.nitro + 0.25, 100);
+        }
+
+        // Drifting
+        car.drifting = keys['ShiftLeft'];
+        let currentGrip = car.drifting ? car.driftGrip : car.grip;
+        if (car.drifting && Math.abs(car.speed) > 1.5 && skidMarks.length < MAX_SKIDMARKS) {
+            skidMarks.push({ x: car.x, y: car.y, life: 0.9 });
+        }
+
+        // Throttle
+        if (keys['KeyW']) car.speed += car.accel + nitroBoost;
+        if (keys['KeyS']) car.speed -= car.accel * 0.7;
+        let rot = car.rotationSpeed;
+        if (car.drifting) rot *= 1.6;
+        if (keys['KeyA']) car.angle -= rot * Math.min(1, Math.abs(car.speed) / 3.5);
+        if (keys['KeyD']) car.angle += rot * Math.min(1, Math.abs(car.speed) / 3.5);
+
+        car.speed = Math.min(Math.max(car.speed, -2.5), nitroBoost > 0 ? 9.5 : car.maxSpeed);
+
+        // Physics
+        car.velX += (Math.sin(car.angle) * car.speed - car.velX) * currentGrip;
+        car.velY += (-Math.cos(car.angle) * car.speed - car.velY) * currentGrip;
+
+        car.x += car.velX;
+        car.y += car.velY;
+        car.speed *= car.friction;
+
+        // Collisions & collectibles
+        buildingCollision(car);
+        handleCollect(car);
+
+        // Particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.05;
+            p.life -= 0.015;
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+
+        // Skidmarks
+        for (let i = skidMarks.length - 1; i >= 0; i--) {
+            skidMarks[i].life -= 0.02;
+            if (skidMarks[i].life <= 0) skidMarks.splice(i, 1);
+        }
+
+        // Update HUD
+        const speedEl = document.getElementById('speedText');
+        const nitroFill = document.getElementById('nitroFill');
+        if (speedEl) speedEl.innerText = Math.floor(Math.abs(car.speed) * 38);
+        if (nitroFill) nitroFill.style.width = car.nitro + '%';
+
+        draw();
+        animationFrame = requestAnimationFrame(update);
+    }
+
+    // ---------- DRAW (adapted from topdowndemo) ----------
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+
+        // Camera
+        ctx.translate(canvas.width/2, canvas.height/2);
+        ctx.scale(zoom, zoom);
+        if (shake > 0.2) {
+            ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+            shake *= 0.92;
+        }
+        ctx.translate(-car.x, -car.y);
+
+        // Ambient fog
+        let gradient = ctx.createRadialGradient(car.x, car.y, 300, car.x, car.y, 2500);
+        gradient.addColorStop(0, 'rgba(20,30,70,0)');
+        gradient.addColorStop(1, '#030310');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(car.x - 2000, car.y - 2000, 4000, 4000);
+
+        // Buildings
+        for (let o of mapObjects) {
+            ctx.fillStyle = o.color;
+            ctx.shadowBlur = 40;
+            ctx.shadowColor = '#aaccff';
+            ctx.fillRect(o.x, o.y, o.w, o.h);
+        }
+        ctx.shadowBlur = 0;
+
+        // Collectibles
+        for (let o of streetObjects) {
+            if (!o.destroyed) {
+                ctx.shadowBlur = 30;
+                ctx.shadowColor = o.color;
+                ctx.fillStyle = o.color;
+                ctx.fillRect(o.x - o.w/2, o.y - o.h/2, o.w, o.h);
+            }
+        }
+
+        // Skidmarks
+        ctx.globalAlpha = 0.5;
+        for (let s of skidMarks) {
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, 10 * s.life, 0, 2*Math.PI);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1.0;
+
+        // Particles
+        for (let p of particles) {
+            ctx.globalAlpha = p.life;
+            ctx.shadowBlur = 25;
+            ctx.shadowColor = p.color;
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x - 4, p.y - 4, 8, 8);
+        }
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+
+        // Player car
+        ctx.save();
+        ctx.translate(car.x, car.y);
+        ctx.rotate(car.angle);
+        ctx.shadowBlur = 60;
+        ctx.shadowColor = '#00ffff';
+        ctx.fillStyle = '#66ffff';
+        ctx.fillRect(-11, -23, 22, 46);
+        // Headlights
+        ctx.fillStyle = 'white';
+        ctx.shadowBlur = 40;
+        ctx.shadowColor = 'white';
+        ctx.fillRect(6, -24, 6, 8);
+        ctx.fillRect(-12, -24, 6, 8);
+        ctx.restore();
+
+        ctx.restore(); // camera
+    }
+
+    // Start the loop
+    update();
+
+    // Cleanup when leaving lobby (optional, but good practice)
+    window._stopMinigame = function() {
+        if (animationFrame) cancelAnimationFrame(animationFrame);
+        window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('keyup', handleKeyUp);
+        window.removeEventListener('resize', resizeCanvas);
+        window._minigameActive = false;
+    };
+}
+
+// Ensure the game stops when switching away from minigame (called in switchShowroom)
+const originalSwitchShowroom = window.switchShowroom;
+window.switchShowroom = function(viewId, btn) {
+    if (viewId !== 'minigame' && window._stopMinigame) {
+        window._stopMinigame();
+    }
+    originalSwitchShowroom(viewId, btn);
+};
+
 //#endregion
 
 

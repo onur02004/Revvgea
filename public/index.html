@@ -12,6 +12,23 @@
     <link rel="stylesheet" href="homeStyle.css">
     <script src="./components/licence-component.js"></script>
 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: '#0a0a0f',
+                        surface: '#111118',
+                        accent: '#ff3c00',
+                        accent2: '#ffb400',
+                        accent3: '#00d4ff',
+                    }
+                }
+            }
+        }
+    </script>
+
 </head>
 
 <body>
@@ -553,16 +570,44 @@
         <div class="lobby-dashboard">
             <section class="lobby-showroom">
                 <div class="showroom-header">
-                    <h2 style="font-family: 'Bebas Neue'; font-size: 32px; letter-spacing: 2px;">
-                        READY GRID
-                    </h2>
-                    <div class="player-count-wrap" style="display: flex; align-items: center; gap: 10px;">
+                    <div class="showroom-nav-pills">
+                        <button class="s-pill active" onclick="switchShowroom('grid', this)">
+                            <span class="icon">🏁</span> READY GRID
+                        </button>
+                        <button class="s-pill" onclick="switchShowroom('minigame', this)">
+                            <span class="icon">🕹️</span> TEST TRACK
+                        </button>
+                        <button class="s-pill" onclick="switchShowroom('carplay', this)">
+                            <span class="icon">📱</span> CARPLAY
+                        </button>
+                    </div>
+
+                    <div class="player-count-wrap">
                         <div class="pulse-dot"></div>
-                        <span id="lobbyCount" class="player-count" style="font-size: 18px; padding: 5px 15px;">0 /
-                            12</span>
+                        <span id="lobbyCount" class="player-count">0 / 12</span>
                     </div>
                 </div>
-                <div class="large-player-grid" id="playersGrid">
+
+                <div id="view-grid" class="showroom-view active">
+                    <div class="large-player-grid" id="playersGrid"></div>
+                </div>
+
+                <div id="view-minigame" class="showroom-view">
+                    <div class="minigame-container">
+                        <canvas id="lobbyMiniGameCanvas"></canvas>
+                        <div class="game-controls-overlay">
+                            <span>WASD TO DRIVE • SPACE NITRO</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-carplay" class="showroom-view">
+                    <div class="carplay-placeholder">
+                        <div class="apple-logo">🍎</div>
+                        <h2>Apple CarPlay</h2>
+                        <p class="coming-soon-text">SYSTEM UPDATE REQUIRED \n (Coming Soon)</p>
+                        <div class="glitch-line"></div>
+                    </div>
                 </div>
             </section>
 
