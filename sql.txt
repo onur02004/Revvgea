@@ -1,0 +1,158 @@
+CREATE TABLE racer_stats (
+    -- Link to the existing users table
+    user_id UUID PRIMARY KEY, 
+    
+    -- Specific "Brother Site" Profile Info
+    racer_name TEXT UNIQUE NOT NULL,
+    license_plate TEXT,
+    fav_car TEXT,
+    fav_avatar TEXT,
+
+    -- Statistics
+    total_games_played INTEGER DEFAULT 0,
+    total_games_won INTEGER DEFAULT 0,
+    total_points INTEGER DEFAULT 0,
+    total_level INTEGER DEFAULT 1,
+
+    -- Performance Data (using Arrays as you requested)
+    accuracies_per_game FLOAT[] DEFAULT '{}',
+    answer_speeds FLOAT[] DEFAULT '{}',
+    streaks INTEGER[] DEFAULT '{}',
+
+    -- Constraints
+    CONSTRAINT fk_user
+        FOREIGN KEY(user_id) 
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+
+
+
+
+
+CREATE TABLE car_avatars (
+    id SERIAL PRIMARY KEY,
+    brand VARCHAR(100),
+    model_name VARCHAR(100),
+    year_range VARCHAR(50),
+    image_path TEXT NOT NULL,
+    tags TEXT[], -- Array of strings for filtering (e.g., 'SUV', 'Sedan')
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+
+INSERT INTO car_avatars (brand, model_name, year_range, image_path, tags) VALUES
+('Alfa Romeo', '4C', '2013-2018', 'arabalar/Alfa Romeo/4C/2013-2018/sm_204099099_alfa-romeo-4c-2013-side-view_3x.webp', ARRAY['Alfa Romeo', '4C']),
+('Alfa Romeo', 'Giulia Coupe 1971-1975', '1971-1975', 'arabalar/Alfa Romeo/Giulia/Coupe 1971-1975/sm_223101159_alfa-romeo-giulia-1971-side-view_3x.webp', ARRAY['Alfa Romeo', 'Giulia', 'Coupe', '1971-1975']),
+('Alfa Romeo', 'Giulia Sedan 1964-1972', '1964-1972', 'arabalar/Alfa Romeo/Giulia/Sedan 1964-1972/sm_233093152_alfa-romeo-giulia-1964-side-view_3x.webp', ARRAY['Alfa Romeo', 'Giulia', 'Sedan', '1964-1972']),
+('Alfa Romeo', 'Giulia Sedan 2015-2022', '2015-2022', 'arabalar/Alfa Romeo/Giulia/Sedan 2015-2022/sm_242103140_alfa-romeo-giulia-2015-side-view_3x.webp', ARRAY['Alfa Romeo', 'Giulia', 'Sedan', '2015-2022']),
+('Alfa Romeo', 'Tonale', '2022-2026', 'arabalar/Alfa Romeo/Tonale/2022-2026/sm_272123123_alfa-romeo-tonale-2022-side-view_3x.webp', ARRAY['Alfa Romeo', 'Tonale']),
+('Citroen', 'C4 2010-2026', '2010-2026', 'arabalar/Citroen/C4 2010-2026/sm_256118106_citroen-c4-2025-side-view_3x.webp', ARRAY['Citroen', 'C4', '2010-2026']),
+('Citroen', 'C4 Cactus 2014-2017', '2014-2017', 'arabalar/Citroen/C4 Cactus 2014-2017/sm_258114096_citroen-c4-cactus-2014-side-view_3x.png', ARRAY['Citroen', 'C4', 'Cactus', '2014-2017']),
+('Citroen', 'C4 Cactus 2018-2020', '2018-2020', 'arabalar/Citroen/C4 Cactus 2018-2020/sl_250115099_citroen-c4-cactus-2018-side-view_3x.png', ARRAY['Citroen', 'C4', 'Cactus', '2018-2020']),
+('Fiat', 'Doblo', '2015-2026', 'arabalar/Fiat/Doblo/2015-2026/sm_309121103_fiat-doblo-2015-side-view_3x.webp', ARRAY['Fiat', 'Doblo']),
+('Fiat', 'Egea Sedan 2015-2020', '2015-2020', 'arabalar/Fiat/Egea/Sedan 2015-2020/sm_252120139_fiat-tipo-2015-side-view_3x.webp', ARRAY['Fiat', 'Egea', 'Sedan', '2015-2020']),
+('Honda', 'Civic Hatchback 2005-2008', '2005-2008', 'arabalar/Honda/Civic/Hatchback 2005-2008/sm_244110099_honda-civic-2005-side-view_3x.webp', ARRAY['Honda', 'Civic', 'Hatchback', '2005-2008']),
+('Honda', 'Civic Hatchback 2011-2017', '2011-2017', 'arabalar/Honda/Civic/Hatchback 2011-2017/sl_244118112_honda-civic-2011-side-view_3x.webp', ARRAY['Honda', 'Civic', 'Hatchback', '2011-2017']),
+('Honda', 'Civic Sedan 2013-2015', '2013-2015', 'arabalar/Honda/Civic/Sedan 2013-2015/sl_239124130_honda-civic-2013-side-view_3x.webp', ARRAY['Honda', 'Civic', 'Sedan', '2013-2015']),
+('Honda', 'Civic Sedan 2016-2022', '2016-2022', 'arabalar/Honda/Civic/Sedan 2016-2022/sl_237118142_honda-civic-2016-side-view_3x.webp', ARRAY['Honda', 'Civic', 'Sedan', '2016-2022']),
+('Honda', 'Civic Sedan 2021-2026', '2021-2026', 'arabalar/Honda/Civic/Sedan 2021-2026/sm_238129136_honda-civic-2021-side-view_3x.webp', ARRAY['Honda', 'Civic', 'Sedan', '2021-2026']),
+('Nissan', 'Qashqai 2010-2014', '2010-2014', 'arabalar/Nissan/Qashqai 2010-2014/sm_270113108_nissan-qashqai-2010-side-view_3x.webp', ARRAY['Nissan', 'Qashqai', '2010-2014']),
+('Nissan', 'Qashqai 2021-2024', '2021-2024', 'arabalar/Nissan/Qashqai 2021-2024/sl_269124121_nissan-qashqai-2021-side-view_3x.webp', ARRAY['Nissan', 'Qashqai', '2021-2024']),
+('Nissan', 'Qashqai 2024-2026', '2024-2026', 'arabalar/Nissan/Qashqai 2024-2026/sl_273124120_nissan-qashqai-2024-side-view_3x.webp', ARRAY['Nissan', 'Qashqai', '2024-2026']),
+('Peugeot', '207 2009-2014', '2009-2014', 'arabalar/Peugeot/207 2009-2014/sm_251115085_peugeot-207-2009-side-view_3x.webp', ARRAY['Peugeot', '207', '2009-2014']),
+('Peugeot', '3008 2024-2026', '2024-2026', 'arabalar/Peugeot/3008 2024-2026/sl_278131118_peugeot-3008-2024-side-view_3x.png', ARRAY['Peugeot', '3008', '2024-2026']),
+('Peugeot', '408 2022-2026', '2022-2026', 'arabalar/Peugeot/408 2022-2026/sm_250122136_peugeot-408-2022-side-view_3x.webp', ARRAY['Peugeot', '408', '2022-2026']),
+('Peugeot', '5008 2024-2026', '2024-2026', 'arabalar/Peugeot/5008 2024-2026/sl_290130134_peugeot-5008-2024-side-view_3x.webp', ARRAY['Peugeot', '5008', '2024-2026']),
+('Renault', 'Austral 2025-2026', '2025-2026', 'arabalar/Renault/Austral 2025-2026/sm_275131124_renault-austral-2025-side-view_3x.webp', ARRAY['Renault', 'Austral', '2025-2026']),
+('Renault', 'Captur 2013-2019', '2013-2019', 'arabalar/Renault/Captur 2013-2019/sm_261123087_renault-captur-2013-side-view_3x.webp', ARRAY['Renault', 'Captur', '2013-2019']),
+('Renault', 'Captur 2019-2024', '2019-2024', 'arabalar/Renault/Captur 2019-2024/sm_263119096_renault-captur-2019-side-view_3x.webp', ARRAY['Renault', 'Captur', '2019-2024']),
+('Renault', 'Captur 2024-2026', '2024-2026', 'arabalar/Renault/Captur 2024-2026/sm_266121093_renault-captur-2024-side-view_3x.webp', ARRAY['Renault', 'Captur', '2024-2026']),
+('Renault', 'Clio 2019-2023', '2019-2023', 'arabalar/Renault/Clio 2019-2023/sm_243112087_renault-clio-2019-side-view_3x.webp', ARRAY['Renault', 'Clio', '2019-2023']),
+('Renault', 'Clio 2023-2025', '2023-2025', 'arabalar/Renault/Clio 2023-2025/sl_241111087_renault-clio-2023-side-view_3x.webp', ARRAY['Renault', 'Clio', '2023-2025']),
+('Renault', 'Clio 2025-2026', '2025-2026', 'arabalar/Renault/Clio 2025-2026/sl_247114089_renault-clio-2025-side-view_3x.webp', ARRAY['Renault', 'Clio', '2025-2026']),
+('Renault', 'Symbol 2008-2013', '2008-2013', 'arabalar/Renault/Symbol 2008-2013/sl_241106139_renault-symbol-2008-side-view_3x.webp', ARRAY['Renault', 'Symbol', '2008-2013']),
+('Skoda', 'Kodiak 2024-2026', '2024-2026', 'arabalar/Skoda/Kodiak 2024-2026/sl_278125146_skoda-kodiaq-2024-side-view_3x.webp', ARRAY['Skoda', 'Kodiak', '2024-2026']),
+('Togg', 'T10X 2022-2026', '2022-2026', 'arabalar/Togg/T10X 2022-2026/sm_283109118_togg-t10x-2022-side-view_3x.webp', ARRAY['Togg', 'T10X', '2022-2026']),
+('Toyota', 'Corolla 2013-2019', '2013-2019', 'arabalar/Toyota/Corolla 2013-2019/sl_247130135_toyota-corolla-2013-side-view_3x.webp', ARRAY['Toyota', 'Corolla', '2013-2019']),
+('Toyota', 'Corolla 2018-2023', '2018-2023', 'arabalar/Toyota/Corolla 2018-2023/sm_240125142_toyota-corolla-2018-side-view_3x.webp', ARRAY['Toyota', 'Corolla', '2018-2023']);
+
+ALTER TABLE car_avatars ADD CONSTRAINT unique_image_path UNIQUE (image_path);
+
+
+
+
+
+
+
+
+-- 1. Create a temporary mapping table
+CREATE TEMP TABLE car_updates (
+    path_suffix TEXT,
+    new_year_range TEXT,
+    new_tags TEXT[]
+);
+
+-- 2. Insert data based on your directory listing
+INSERT INTO car_updates (path_suffix, new_year_range, new_tags) VALUES
+-- Alfa Romeo
+('%alfa-romeo-4c-2013%', '2013-2018', ARRAY['Coupe', 'Sport']),
+('%alfa-romeo-giulia-1971%', '1971-1975', ARRAY['Coupe', 'Classic']),
+('%alfa-romeo-giulia-1964%', '1964-1972', ARRAY['Sedan', 'Classic']),
+('%alfa-romeo-giulia-2015%', '2015-2022', ARRAY['Sedan', 'Sport']),
+('%alfa-romeo-tonale-2022%', '2022-2026', ARRAY['SUV', 'Crossover']),
+
+-- Citroen
+('%citroen-c4-2025%', '2025-2026', ARRAY['Hatchback', 'Crossover']),
+('%citroen-c4-cactus-2014%', '2014-2017', ARRAY['Hatchback', 'Crossover']),
+('%citroen-c4-cactus-2018%', '2018-2020', ARRAY['Hatchback', 'Crossover']),
+
+-- Fiat
+('%fiat-doblo-2015%', '2015-2026', ARRAY['MPV', 'Van']),
+('%fiat-tipo-2015%', '2015-2020', ARRAY['Sedan', 'Compact']),
+
+-- Honda
+('%honda-civic-2005%', '2005-2008', ARRAY['Hatchback', 'Compact']),
+('%honda-civic-2011%', '2011-2017', ARRAY['Hatchback', 'Compact']),
+('%honda-civic-2013%', '2013-2015', ARRAY['Sedan', 'Compact']),
+('%honda-civic-2016%', '2016-2022', ARRAY['Sedan', 'Compact']),
+('%honda-civic-2021%', '2021-2026', ARRAY['Sedan', 'Compact']),
+
+-- Nissan
+('%nissan-qashqai-2010%', '2010-2014', ARRAY['SUV', 'Crossover']),
+('%nissan-qashqai-2021%', '2021-2024', ARRAY['SUV', 'Crossover']),
+('%nissan-qashqai-2024%', '2024-2026', ARRAY['SUV', 'Crossover']),
+
+-- Peugeot
+('%peugeot-207-2009%', '2009-2014', ARRAY['Hatchback', 'Supermini']),
+('%peugeot-3008-2024%', '2024-2026', ARRAY['SUV', 'Fastback']),
+('%peugeot-408-2022%', '2022-2026', ARRAY['Crossover', 'Fastback']),
+('%peugeot-5008-2024%', '2024-2026', ARRAY['SUV', '7-Seater']),
+
+-- Renault
+('%renault-austral-2025%', '2025-2026', ARRAY['SUV', 'Hybrid']),
+('%renault-captur-2013%', '2013-2019', ARRAY['SUV', 'Crossover']),
+('%renault-captur-2019%', '2019-2024', ARRAY['SUV', 'Crossover']),
+('%renault-captur-2024%', '2024-2026', ARRAY['SUV', 'Crossover']),
+('%renault-clio-2019%', '2019-2023', ARRAY['Hatchback', 'Supermini']),
+('%renault-clio-2023%', '2023-2025', ARRAY['Hatchback', 'Supermini']),
+('%renault-clio-2025%', '2025-2026', ARRAY['Hatchback', 'Supermini']),
+('%renault-symbol-2008%', '2008-2013', ARRAY['Sedan', 'B-Segment']),
+
+-- Skoda, Togg, Toyota
+('%skoda-kodiaq-2024%', '2024-2026', ARRAY['SUV', '7-Seater']),
+('%togg-t10x-2022%', '2022-2026', ARRAY['SUV', 'Electric']),
+('%toyota-corolla-2013%', '2013-2019', ARRAY['Sedan', 'Compact']),
+('%toyota-corolla-2018%', '2018-2023', ARRAY['Sedan', 'Compact']);
+
+-- 3. Execute the update join
+UPDATE car_avatars
+SET 
+    year_range = car_updates.new_year_range,
+    tags = car_updates.new_tags
+FROM car_updates
+WHERE car_avatars.image_path LIKE car_updates.path_suffix;
+
+-- 4. Clean up
+DROP TABLE car_updates;

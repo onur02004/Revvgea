@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <title>Revvgea</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="homeStyle.css">
+    <script src="./components/licence-component.js"></script>
+
+</head>
+
+<body>
+
+    <!-- Toast/ Popup -->
+    <div id="toast-container"
+        style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px;">
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-card fade-in">
+            <h2 id="modal-title">Alert</h2>
+            <p id="modal-message">Message goes here...</p>
+            <div class="modal-actions" id="modal-actions">
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Home Landing ═══ -->
+    <div class="screen active" id="screen-landing">
+        <div class="bg-grid"></div>
+        <div class="bg-glow"></div>
+        <nav class="nav">
+            <div class="nav-logo">REVVGEA</div>
+            <div class="nav-links">
+                <button class="nav-btn nav-btn-ghost" style="display: none;" onclick="showScreen('screen-join')">Join
+                    Game</button>
+                <button class="nav-btn nav-btn-solid" style="display: none;" onclick="showScreen('screen-avatar')">Host
+                    Game</button>
+                <h2 id="main-auth-btn" class="nav-btn nav-btn-primary" style="visibility: hidden;"
+                    onclick="showScreen('screen-login')"></h2>
+            </div>
+        </nav>
+        <div class="landing-content fade-in">
+            <div class="logo-badge">
+                <div class="logo-dot"></div> Multiplayer Car Quiz
+            </div>
+            <div class="landing-title">REVV<span>GEA</span></div>
+            <p class="landing-sub">Test your automotive knowledge</p>
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="showScreen('screen-avatar')">🏁 Host a Game</button>
+                <button class="btn btn-secondary" onclick="showScreen('screen-join')">Join Room</button>
+            </div>
+            <div class="stats-row">
+                <div class="stat">
+                    <div class="stat-number">Idk How Many</div>
+                    <div class="stat-label">Players Online</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ LOGIN / SIGNUP ═══ -->
+    <div class="screen" id="screen-login">
+        <nav class="nav">
+            <div class="nav-logo">REVVGEA</div>
+            <div class="nav-links"><button class="nav-btn nav-btn-ghost" onclick="goHome()">← Back</button></div>
+        </nav>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:16px;">
+            <div class="auth-wrap fade-in">
+                <div class="auth-logo">REVVGEA</div>
+                <div class="auth-tagline">Sign in to track your stats</div>
+                <div class="auth-card">
+                    <div class="auth-tabs">
+                        <button class="auth-tab active" onclick="switchAuthTab('login',this)">Sign In</button>
+                        <button class="auth-tab" onclick="switchAuthTab('signup',this)">Register</button>
+                    </div>
+
+                    <!-- LOGIN FORM -->
+                    <div id="auth-login" class="auth-form">
+                        <button class="btn-social" onclick="GoogleLoginClicked()">
+                            <span>🔍</span> Continue with Google
+                        </button>
+                        <div class="auth-divider"><span>or</span></div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input class="input-field" type="email" placeholder="driver@revvgea.com"
+                                autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input class="input-field" type="password" placeholder="••••••••"
+                                autocomplete="current-password">
+                        </div>
+                        <button class="forgot-link" style="align-self:flex-end">Forgot password?</button>
+                        <button class="btn-auth" onclick="doLogin()">Sign In 🏎️</button>
+                    </div>
+
+                    <!-- SIGNUP FORM -->
+                    <div id="auth-signup" class="auth-form" style="display:none;">
+                        <button class="btn-social" onclick="GoogleLoginClicked()"><span>🔍</span> Sign up with
+                            Google</button>
+                        <div class="auth-divider"><span>or</span></div>
+                        <div class="form-group">
+                            <label class="form-label">Driver Name</label>
+                            <input class="input-field" type="text" placeholder="Speed Racer" autocomplete="name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input class="input-field" type="email" placeholder="driver@revvgea.com"
+                                autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input class="input-field" type="password" placeholder="Min 8 characters"
+                                autocomplete="new-password">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confirm Password</label>
+                            <input class="input-field" type="password" placeholder="Repeat password"
+                                autocomplete="new-password">
+                        </div>
+                        <button class="btn-auth" onclick="doLogin()">Create Account 🏁</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ ACCOUNT ═══ -->
+    <div class="screen" id="screen-account">
+        <nav class="nav">
+            <div class="nav-logo">REVVGEA</div>
+            <div class="nav-links">
+                <button class="nav-btn nav-btn-ghost" onclick="handleLogout()">Sign Out</button>
+                <div class="nav-links"><button class="nav-btn nav-btn-ghost" onclick="goHome()">← Back</button></div>
+            </div>
+        </nav>
+
+        <div class="account-wrap fade-in">
+            <!-- PROFILE HERO -->
+            <div class="profile-hero">
+                <div class="profile-top">
+                    <div class="profile-avatar-wrap">
+                        <div class="profile-avatar">🏎️</div>
+                        <div class="profile-avatar-edit">✏️</div>
+                    </div>
+                    <div>
+                        <div class="profile-name">Speed Racer</div>
+                        <div class="profile-handle">@speed_racer · Ferrari 488 GTB</div>
+                        <div class="profile-joined">🗓 Member since Jan 2024</div>
+                        <div class="profile-badges">
+                            <span class="badge badge-gold">🏆 Top Racer</span>
+                            <span class="badge badge-blue">🔵 Verified</span>
+                            <span class="badge badge-red">🔥 Hot Streak</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-stats-row">
+                    <div class="ps-item">
+                        <div class="ps-val" style="color:var(--accent2)">247</div>
+                        <div class="ps-label">Games</div>
+                    </div>
+                    <div class="ps-item">
+                        <div class="ps-val" style="color:var(--green)">68%</div>
+                        <div class="ps-label">Win Rate</div>
+                    </div>
+                    <div class="ps-item">
+                        <div class="ps-val" style="color:var(--accent)">142K</div>
+                        <div class="ps-label">Total Pts</div>
+                    </div>
+                    <div class="ps-item">
+                        <div class="ps-val" style="color:var(--accent3)">#14</div>
+                        <div class="ps-label">Global</div>
+                    </div>
+                </div>
+                <div class="profile-hero-wm">REVVGEA</div>
+            </div>
+
+            <driving-licence id="myLicence"></driving-licence>
+            <div style="text-align: center; margin-bottom: 20px; margin-top: 20px;">
+                <button class="plate-edit-trigger" onclick="openPlateEditor()">✎ CUSTOMIZE PLATE</button>
+            </div>
+
+            <!-- SUB TABS -->
+            <div class="acct-tabs">
+                <button class="acct-tab active" onclick="switchAcctTab('stats',this)">📊 Stats</button>
+                <button class="acct-tab" onclick="switchAcctTab('history',this)">🕐 History</button>
+                <button class="acct-tab" onclick="switchAcctTab('settings',this)">⚙️ Settings</button>
+            </div>
+
+            <!-- STATS PANEL -->
+            <div class="acct-panel active" id="panel-stats">
+                <div class="acct-section-head">Performance</div>
+                <div class="stat-cards">
+                    <div class="stat-card c1">
+                        <div class="sc-icon">🎯</div>
+                        <div class="sc-val" style="color:var(--accent)">87%</div>
+                        <div class="sc-label">Best Accuracy</div>
+                        <div class="sc-sub">All-time high</div>
+                        <div class="mini-chart">
+                            <div class="mc-bar" style="height:40%"></div>
+                            <div class="mc-bar" style="height:55%"></div>
+                            <div class="mc-bar" style="height:48%"></div>
+                            <div class="mc-bar" style="height:70%"></div>
+                            <div class="mc-bar" style="height:62%"></div>
+                            <div class="mc-bar peak" style="height:87%"></div>
+                            <div class="mc-bar" style="height:80%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-card c2">
+                        <div class="sc-icon">⚡</div>
+                        <div class="sc-val" style="color:var(--accent2)">3.8s</div>
+                        <div class="sc-label">Avg Answer</div>
+                        <div class="sc-sub">Top 10% speed</div>
+                        <div class="mini-chart" style="--accent:var(--accent2)">
+                            <div class="mc-bar" style="height:60%;background:var(--accent2)"></div>
+                            <div class="mc-bar" style="height:80%;background:var(--accent2)"></div>
+                            <div class="mc-bar" style="height:50%;background:var(--accent2)"></div>
+                            <div class="mc-bar" style="height:90%;background:var(--accent2)"></div>
+                            <div class="mc-bar peak" style="height:100%;background:var(--accent2)"></div>
+                            <div class="mc-bar" style="height:75%;background:var(--accent2)"></div>
+                            <div class="mc-bar" style="height:70%;background:var(--accent2)"></div>
+                        </div>
+                    </div>
+                    <div class="stat-card c3">
+                        <div class="sc-icon">🔥</div>
+                        <div class="sc-val" style="color:var(--accent3)">11×</div>
+                        <div class="sc-label">Best Streak</div>
+                        <div class="sc-sub">Personal record</div>
+                    </div>
+                    <div class="stat-card c4">
+                        <div class="sc-icon">🏆</div>
+                        <div class="sc-val" style="color:var(--green)">168</div>
+                        <div class="sc-label">Wins</div>
+                        <div class="sc-sub">68% of games</div>
+                    </div>
+                </div>
+
+                <div class="acct-section-head">Category Breakdown</div>
+                <div
+                    style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px;">
+                    <div id="catBreakdown"></div>
+                </div>
+
+                <div class="acct-section-head" style="margin-top:14px">Favourite Cars Guessed</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <div
+                        style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;flex:1;min-width:140px;">
+                        <span style="font-size:28px">🏎️</span>
+                        <div>
+                            <div style="font-family:'Bebas Neue';font-size:17px">Ferrari 488</div>
+                            <div style="font-family:'Barlow Condensed';font-size:10px;color:var(--muted)">42 correct
+                                guesses</div>
+                        </div>
+                    </div>
+                    <div
+                        style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;flex:1;min-width:140px;">
+                        <span style="font-size:28px">🚗</span>
+                        <div>
+                            <div style="font-family:'Bebas Neue';font-size:17px">VW Golf GTI</div>
+                            <div style="font-family:'Barlow Condensed';font-size:10px;color:var(--muted)">38 correct
+                                guesses</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HISTORY PANEL -->
+            <div class="acct-panel" id="panel-history">
+                <div class="acct-section-head">Recent Games</div>
+                <div class="history-list" id="historyList"></div>
+            </div>
+
+            <!-- SETTINGS PANEL -->
+            <div class="acct-panel" id="panel-settings">
+                <div class="acct-section-head">Profile</div>
+                <div class="settings-list">
+                    <div class="setting-row-full">
+                        <div class="sr-icon">👤</div>
+                        <div class="sr-info">
+                            <div class="sr-title">Display Name</div>
+                            <div class="sr-desc">Speed Racer</div>
+                        </div>
+                        <div class="sr-right"><span class="sr-arrow">›</span></div>
+                    </div>
+                    <div class="setting-row-full">
+                        <div class="sr-icon">🚗</div>
+                        <div class="sr-info">
+                            <div class="sr-title">Default Car Avatar</div>
+                            <div class="sr-desc">Ferrari 488 GTB</div>
+                        </div>
+                        <div class="sr-right"><span class="sr-arrow">›</span></div>
+                    </div>
+                    <div class="setting-row-full">
+                        <div class="sr-icon">📧</div>
+                        <div class="sr-info">
+                            <div class="sr-title">Email</div>
+                            <div class="sr-desc">driver@revvgea.com</div>
+                        </div>
+                        <div class="sr-right"><span class="sr-arrow">›</span></div>
+                    </div>
+                </div>
+
+                <div class="acct-section-head" style="margin-top:16px">Gameplay</div>
+                <div class="settings-list">
+                    <div class="setting-row-full">
+                        <div class="sr-icon">🔔</div>
+                        <div class="sr-info">
+                            <div class="sr-title">Sound Effects</div>
+                            <div class="sr-desc">Revs, horns & more</div>
+                        </div>
+                        <div class="sr-right">
+                            <label class="toggle">
+                                <input type="checkbox" checked>
+                                <div class="toggle-track"></div>
+                                <div class="toggle-thumb"></div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-row-full">
+                        <div class="sr-icon">📳</div>
+                        <div class="sr-info">
+                            <div class="sr-title">Haptic Feedback</div>
+                            <div class="sr-desc">Vibrate on answer</div>
+                        </div>
+                        <div class="sr-right">
+                            <label class="toggle">
+                                <input type="checkbox" checked>
+                                <div class="toggle-track"></div>
+                                <div class="toggle-thumb"></div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-row-full">
+                        <div class="sr-icon">🔥</div>
+                        <div class="sr-info">
+                            <div class="sr-title">Show Streak Alerts</div>
+                            <div class="sr-desc">Popup on consecutive correct</div>
+                        </div>
+                        <div class="sr-right">
+                            <label class="toggle">
+                                <input type="checkbox" checked>
+                                <div class="toggle-track"></div>
+                                <div class="toggle-thumb"></div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-row-full">
+                        <div class="sr-icon">⏱</div>
+                        <div class="sr-info">
+                            <div class="sr-title">Default Time Limit</div>
+                            <div class="sr-desc">When hosting games</div>
+                        </div>
+                        <div class="sr-right">
+                            <select class="sr-select">
+                                <option>15s</option>
+                                <option selected>20s</option>
+                                <option>30s</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-row-full">
+                        <div class="sr-icon">🎯</div>
+                        <div class="sr-info">
+                            <div class="sr-title">Preferred Difficulty</div>
+                        </div>
+                        <div class="sr-right">
+                            <select class="sr-select">
+                                <option>Easy</option>
+                                <option selected>Medium</option>
+                                <option>Hard</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="acct-section-head" style="margin-top:16px">Notifications</div>
+                <div class="settings-list">
+                    <div class="setting-row-full">
+                        <div class="sr-icon">📢</div>
+                        <div class="sr-info">
+                            <div class="sr-title">Game Invites</div>
+                            <div class="sr-desc">Friends invite you to a room</div>
+                        </div>
+                        <div class="sr-right">
+                            <label class="toggle">
+                                <input type="checkbox" checked>
+                                <div class="toggle-track"></div>
+                                <div class="toggle-thumb"></div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="setting-row-full">
+                        <div class="sr-icon">🏆</div>
+                        <div class="sr-info">
+                            <div class="sr-title">Weekly Leaderboard</div>
+                            <div class="sr-desc">Top 10 digest every Monday</div>
+                        </div>
+                        <div class="sr-right">
+                            <label class="toggle">
+                                <input type="checkbox">
+                                <div class="toggle-track"></div>
+                                <div class="toggle-thumb"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="acct-section-head" style="margin-top:16px">Privacy & Account</div>
+                <div class="settings-list">
+                    <div class="setting-row-full">
+                        <div class="sr-icon">🔒</div>
+                        <div class="sr-info">
+                            <div class="sr-title">Change Password</div>
+                        </div>
+                        <div class="sr-right"><span class="sr-arrow">›</span></div>
+                    </div>
+                    <div class="setting-row-full">
+                        <div class="sr-icon">🌐</div>
+                        <div class="sr-info">
+                            <div class="sr-title">Profile Visibility</div>
+                            <div class="sr-desc">Who can see your stats</div>
+                        </div>
+                        <div class="sr-right">
+                            <select class="sr-select">
+                                <option>Everyone</option>
+                                <option>Friends</option>
+                                <option>Private</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-row-full">
+                        <div class="sr-icon">📤</div>
+                        <div class="sr-info">
+                            <div class="sr-title">Export My Data</div>
+                            <div class="sr-desc">Download all game history</div>
+                        </div>
+                        <div class="sr-right"><span class="sr-arrow">›</span></div>
+                    </div>
+                    <div class="setting-row-full danger-row">
+                        <div class="sr-icon">🗑</div>
+                        <div class="sr-info">
+                            <div class="sr-title">Delete Account</div>
+                            <div class="sr-desc">This cannot be undone</div>
+                        </div>
+                        <div class="sr-right"><span class="sr-arrow" style="color:var(--red)">›</span></div>
+                    </div>
+                </div>
+
+                <button class="acct-logout-btn" onclick="handleLogout()">🚪 Sign Out</button>
+            </div>
+
+        </div>
+        <div class="tab-bar-spacer"></div>
+    </div>
+
+
+    <!-- AVATAR -->
+    <div class="screen" id="screen-avatar">
+        <nav class="nav">
+            <div class="nav-logo">REVVGEA</div>
+            <div class="nav-links"><button class="nav-btn nav-btn-ghost" onclick="goHome()">← Back</button></div>
+        </nav>
+
+        <!-- GARAGE SCREEN LAYOUT -->
+        <div class="garage-wrapper">
+
+            <!-- LEFT: Preview panel -->
+            <div class="garage-preview" id="garagePreview">
+                <div class="garage-preview-inner">
+                    <div class="preview-glow" id="previewGlow"></div>
+                    <div class="preview-car-img" id="previewCarImg">
+                        <div class="preview-no-img" id="previewNoImg">
+                            <svg viewBox="0 0 120 60" class="preview-silhouette" id="previewSilhouette">
+                                <path d="M8,52 L15,32 L30,22 L75,22 L100,32 L112,52 Z" fill="currentColor"
+                                    opacity="0.15" />
+                                <circle cx="30" cy="52" r="10" fill="none" stroke="currentColor" stroke-width="3"
+                                    opacity="0.3" />
+                                <circle cx="90" cy="52" r="10" fill="none" stroke="currentColor" stroke-width="3"
+                                    opacity="0.3" />
+                            </svg>
+                            <div class="preview-no-img-text">No image yet</div>
+                        </div>
+                        <img id="previewImg" src="" alt="" style="display:none">
+                    </div>
+                    <div class="preview-info" id="previewInfo">
+                        <div id="previewBadgeWrap" style="margin-bottom: 12px; display: none; text-align: left;">
+                            <img id="previewBadge" src="" alt="Brand Logo"
+                                style="height: 35px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+                        </div>
+
+                        <div class="preview-brand" id="previewBrand">—</div>
+
+                        <div class="preview-model-row">
+                            <div class="preview-model" id="previewModel">SELECT A CAR</div>
+                            <div class="preview-variant" id="previewVariant"></div>
+                        </div>
+
+                        <div class="preview-tags" id="previewTags"></div>
+
+                        <div class="preview-selected-label" id="previewRideLabel"
+                            style="margin-top: 30px; display: none;">YOUR RIDE</div>
+                    </div>
+                    <div class="preview-confirm" id="previewConfirm" style="display:none">
+                        <button class="btn-confirm-ride" onclick="confirmRide()">Enter Garage ▶</button>
+                    </div>
+
+                    <div class="preview-info" id="previewInfo">
+                        <div id="previewBadgeWrap" style="margin-bottom: 12px; display: none;">
+                            <img id="previewBadge" src="" alt="Brand Badge"
+                                style="padding: 50px; width: 243px; height: 100%;object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+                        </div>
+
+                        <div class="preview-brand" id="previewBrand">—</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Picker -->
+            <div class="garage-picker">
+                <div class="filter-bar" id="filterBar">
+                    <button class="filter-btn active" onclick="filterCars('all',this)">All Brands</button>
+                </div>
+
+                <div class="filter-bar" id="categoryFilterBar">
+                    <button class="filter-btn active" onclick="filterByCategory('all', this)">All Types</button>
+                </div>
+
+                <div class="filter-bar" id="yearFilterBar">
+                    <button class="filter-btn active" onclick="filterByYear('all', this)">All Years</button>
+                </div>
+
+                <div class="avatar-car-grid" id="avatarCarGrid"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- LOBBY -->
+    <div class="screen" id="screen-lobby">
+        <nav class="nav">
+            <div class="nav-logo">REVVGEA <span class="room-pill">ID: <span class="room-code">----</span></span></div>
+            <div class="nav-links">
+                <button class="nav-btn nav-btn-ghost" onclick="leaveRoom()">Exit Lobby</button>
+            </div>
+        </nav>
+
+        <div class="lobby-dashboard">
+            <section class="lobby-showroom">
+                <div class="showroom-header">
+                    <h2 style="font-family: 'Bebas Neue'; font-size: 32px; letter-spacing: 2px;">
+                        READY GRID
+                    </h2>
+                    <div class="player-count-wrap" style="display: flex; align-items: center; gap: 10px;">
+                        <div class="pulse-dot"></div>
+                        <span id="lobbyCount" class="player-count" style="font-size: 18px; padding: 5px 15px;">0 /
+                            12</span>
+                    </div>
+                </div>
+                <div class="large-player-grid" id="playersGrid">
+                </div>
+            </section>
+
+            <aside class="lobby-sidebar">
+                <div class="sidebar-tabs">
+                    <button class="s-tab active" onclick="switchSideTab('chat', this)">COMMUNICATION</button>
+                    <button class="s-tab" onclick="switchSideTab('config', this)">RACE SETTINGS</button>
+                </div>
+
+                <div class="sidebar-content">
+                    <div id="side-panel-chat" class="side-panel active">
+                        <div class="chat-display" id="chatBox"></div>
+                        <div class="chat-footer">
+                            <input type="text" id="chatInput" placeholder="Message drivers...">
+                            <button onclick="sendMessage()" class="chat-send">▶</button>
+                        </div>
+                    </div>
+
+                    <div id="side-panel-config" class="side-panel">
+                        <div id="settings-container">
+                        </div>
+
+                        <div class="host-controls host-only">
+                            <button class="btn-start" onclick="startRace()">IGNITION 🏁</button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+
+    <!-- JOIN -->
+    <div class="screen" id="screen-join">
+        <nav class="nav">
+            <div class="nav-logo">REVVGEA</div>
+            <div class="nav-links">
+                <button class="nav-btn nav-btn-ghost" onclick="goHome()">← Back</button>
+            </div>
+        </nav>
+
+        <div class="join-container fade-in">
+            <div class="join-card-sidebar">
+                <div class="join-header">
+                    <span class="logo-badge" style="margin-bottom: 10px;">Direct Entry</span>
+                    <h2 class="join-title">HAVE A CODE?</h2>
+                    <p class="sr-desc">Enter the 4-digit room code sent by your crew.</p>
+                </div>
+
+                <div class="code-input-wrap">
+                    <input type="text" id="joinCodeInput" maxlength="4" placeholder="PX35" class="code-field">
+                    <button class="btn-auth" onclick="manualJoin()">Punch It 🏎️</button>
+                </div>
+
+                <div class="join-hint">
+                    <div class="pulse-dot"></div>
+                    <span>Syncing with global servers...</span>
+                </div>
+            </div>
+
+            <div class="room-browser">
+                <div class="browser-header">
+                    <h3 class="config-label">Active Global Lobbies</h3>
+                    <button class="refresh-btn" onclick="refreshRooms()">↻ Refresh Feed</button>
+                </div>
+
+                <div class="room-list" id="globalRoomList">
+                    <div class="room-loader">Scanning for active racers...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!--Plate UI-->
+    <div id="plate-modal" class="modal-overlay">
+        <div class="plate-editor-card fade-in">
+            <h3 class="config-label" style="margin-bottom: 20px; color: var(--accent3);">Custom License Plate</h3>
+
+            <div class="tr-plate-container">
+                <div class="tr-blue-strip">
+                    <span>TR</span>
+                </div>
+
+                <input type="text" id="plateInput" maxlength="10" placeholder="34 REV 01" spellcheck="false">
+
+                <div class="plate-shine"></div>
+            </div>
+
+            <p class="sr-desc" style="margin: 15px 0; text-align: center;">Max 10 characters. Express your racing style.
+            </p>
+
+            <div class="modal-actions">
+                <button class="nav-btn nav-btn-ghost" onclick="closePlateEditor()">Cancel</button>
+                <button class="btn-auth" style="padding: 10px 30px; font-size: 16px;" onclick="saveCustomPlate()">Apply
+                    Plate 🛠️</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>
